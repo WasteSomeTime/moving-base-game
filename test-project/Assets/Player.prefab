@@ -237,5 +237,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
+  player: {fileID: 891636406018901573}
   rb: {fileID: 891636406018901574}
   cam: {fileID: 0}
