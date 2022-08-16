@@ -1,34 +1,71 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour {
-    public float moveSpeed = 5f;
-    public Rigidbody2D rb;
-    public Camera cam;
-
+public class PlayerController : MonoBehaviour {
+    
+    public float movementSpeed = 5f;
+    public float dodgeForce = 5000f;
     private Vector2 movement;
-    private Vector2 mousePos;
-    private string direction = "";
+    private string direction;
 
-    // Update is called once per frame
+    // components
+    private Rigidbody2D rb;
+    private PlayerInput playerInput;
+
+    // inputs
+    private InputAction moveAction;
+    private InputAction dodgeAction;
+    private InputAction attackAction;
+    private InputAction interactAction;
+
+    private void Awake() {
+        rb = GetComponent<Rigidbody2D>();
+        playerInput = GetComponent<PlayerInput>();
+        moveAction = playerInput.actions["Move"];
+        dodgeAction = playerInput.actions["Dodge"];
+        attackAction = playerInput.actions["Attack"];
+        interactAction = playerInput.actions["Interact"];
+    }
+
+    private void Start() {
+        dodgeAction.performed += Dodge;
+        attackAction.performed += Attack;
+        interactAction.performed += Interact;
+    }
+
     private void Update() {
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
-
-        mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+        movement = moveAction.ReadValue<Vector2>();
     }
 
     private void FixedUpdate() {
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        Move();
+    }
 
-        /* Vector2 lookDir = mousePos - rb.position;
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
-        rb.rotation = angle; */
+    // player movement function
+    private void Move() {
+        rb.MovePosition(rb.position + movement * movementSpeed * Time.fixedDeltaTime);
 
         string currDir = getDirection();
-        if ( currDir != direction) {
+        if (currDir != direction) {
             direction = currDir;
             rotatePlayer();
         }
+    }
+
+    // player dodge function
+    private void Dodge(InputAction.CallbackContext context) {
+        rb.AddForce(movement * dodgeForce);
+        Debug.Log("dodge");
+    }
+
+    // player basic attack function
+    private void Attack(InputAction.CallbackContext context) {
+        Debug.Log("attack");
+    }
+
+    // player interaction function
+    private void Interact(InputAction.CallbackContext context) {
+        Debug.Log("interact");
     }
 
     private void rotatePlayer() {

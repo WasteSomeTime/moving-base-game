@@ -178,7 +178,8 @@ GameObject:
   m_Component:
   - component: {fileID: 891636406018901573}
   - component: {fileID: 891636406018901574}
-  - component: {fileID: 891636406018901575}
+  - component: {fileID: 1374325222219587266}
+  - component: {fileID: -7106716538591933230}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -224,7 +225,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &891636406018901575
+--- !u!114 &1374325222219587266
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -233,10 +234,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 891636406018901624}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9ce8a73e2bd6884fbe78a73e284e1d7, type: 3}
+  m_Script: {fileID: 11500000, guid: c81eb242843a55b4d92d284ad098d758, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  player: {fileID: 891636406018901573}
-  rb: {fileID: 891636406018901574}
-  cam: {fileID: 0}
+  movementSpeed: 5
+  dodgeForce: 5000
+--- !u!114 &-7106716538591933230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891636406018901624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 94570b368d5232e4c9b518b07179c312, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Adventuring
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
