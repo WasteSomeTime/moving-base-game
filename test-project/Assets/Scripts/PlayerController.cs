@@ -111,29 +111,29 @@ public class PlayerController : MonoBehaviour {
 
     // get direction the player is facing
     private string getDirection() {
-        if (movement.y == 1) {
-            if (movement.x == 1) {
+        if (movement.y > 0) {
+            if (movement.x > 0) {
                 return "ne";
             }
-            else if (movement.x == -1) {
+            else if (movement.x < 0) {
                 return "nw";
             }
             return "n";
         }
-        else if (movement.y == -1) {
-            if (movement.x == 1) {
+        else if (movement.y < 0) {
+            if (movement.x > 0) {
                 return "se";
             }
-            else if (movement.x == -1) {
+            else if (movement.x < 0) {
                 return "sw";
             }
             return "s";
         }
         else {
-            if (movement.x == 1) {
+            if (movement.x > 0) {
                 return "e";
             }
-            else if (movement.x == -1) {
+            else if (movement.x < 0) {
                 return "w";
             }
             return "";
