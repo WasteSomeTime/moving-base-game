@@ -5,26 +5,37 @@ public class PlayerController : MonoBehaviour {
     
     public float movementSpeed = 5f;
     public float dodgeForce = 5000f;
+    public float attackRange = 0.5f;
+    public int attackDamage = 10;
+    public LayerMask enemyLayers;
     private Vector2 movement;
     private string direction;
+    private Vector3 mousePosition;
 
     // components
     private Rigidbody2D rb;
     private PlayerInput playerInput;
+
+    public Transform rotationPoint;
+    public Transform attackPoint;
+    private Camera cam;
 
     // inputs
     private InputAction moveAction;
     private InputAction dodgeAction;
     private InputAction attackAction;
     private InputAction interactAction;
+    private InputAction mouseAction;
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         playerInput = GetComponent<PlayerInput>();
+        cam = Camera.main;
         moveAction = playerInput.actions["Move"];
         dodgeAction = playerInput.actions["Dodge"];
         attackAction = playerInput.actions["Attack"];
         interactAction = playerInput.actions["Interact"];
+        mouseAction = playerInput.actions["MousePos"];
     }
 
     private void Start() {
@@ -35,10 +46,14 @@ public class PlayerController : MonoBehaviour {
 
     private void Update() {
         movement = moveAction.ReadValue<Vector2>();
+        mousePosition = cam.ScreenToWorldPoint(mouseAction.ReadValue<Vector2>());
     }
 
     private void FixedUpdate() {
         Move();
+        Vector3 mouseDirection = mousePosition - rotationPoint.position;
+        float angle = Mathf.Atan2(mouseDirection.y, mouseDirection.x) * Mathf.Rad2Deg - 90f;
+        rotationPoint.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
     }
 
     // player movement function
@@ -60,7 +75,17 @@ public class PlayerController : MonoBehaviour {
 
     // player basic attack function
     private void Attack(InputAction.CallbackContext context) {
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+        foreach(Collider2D enemy in hitEnemies) {
+            enemy.GetComponent<TestEnemy>().damage(attackDamage);
+        }
+        
         Debug.Log("attack");
+    }
+
+    private void OnDrawGizmosSelected() {
+        if (attackPoint == null) return;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 
     // player interaction function
@@ -72,39 +97,30 @@ public class PlayerController : MonoBehaviour {
         switch (direction) {
             case "n":
                 rb.rotation = 0f;
-                Debug.Log("north");
                 break;
             case "ne":
                 rb.rotation = -45f;
-                Debug.Log("north east");
                 break;
             case "nw":
                 rb.rotation = 45f;
-                Debug.Log("north west");
                 break;
             case "s":
                 rb.rotation = 180f;
-                Debug.Log("south");
                 break;
             case "se":
                 rb.rotation = -135f;
-                Debug.Log("south east");
                 break;
             case "sw":
                 rb.rotation = 135f;
-                Debug.Log("south west");
                 break;
             case "e":
                 rb.rotation = -90f;
-                Debug.Log("east");
                 break;
             case "w":
                 rb.rotation = 90f;
-                Debug.Log("west");
                 break;
             default:
                 rb.rotation = 180f;
-                Debug.Log("idle");
                 break;
         }
     }
