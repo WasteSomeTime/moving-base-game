@@ -2,22 +2,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour {
-    
-    public float movementSpeed = 5f;
-    public float dodgeForce = 5000f;
-    public float attackRange = 0.5f;
-    public int attackDamage = 10;
-    public LayerMask enemyLayers;
-    private Vector2 movement;
-    private string direction;
-    private Vector3 mousePosition;
-
     // components
     private Rigidbody2D rb;
     private PlayerInput playerInput;
+    private PlayerAnimManager animations;
 
-    public Transform rotationPoint;
-    public Transform attackPoint;
+    [SerializeField] private Transform rotationPoint;
+    [SerializeField] private Transform attackPoint;
     private Camera cam;
 
     // inputs
@@ -27,15 +18,34 @@ public class PlayerController : MonoBehaviour {
     private InputAction interactAction;
     private InputAction mouseAction;
 
+    private enum State {
+        Normal,
+        Dodge
+    }
+
+    [SerializeField] private float movementSpeed = 300f;
+    [SerializeField] private float attackRange = 0.5f;
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] private LayerMask enemyLayers;
+    private Vector2 moveDirection;
+    private Vector2 lastMoveDirection;
+    private Vector3 mousePosition;
+    private State state;
+    private Vector2 dodgeDirection;
+    private float dodgeSpeed;
+
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         playerInput = GetComponent<PlayerInput>();
+        animations = GetComponent<PlayerAnimManager>();
         cam = Camera.main;
         moveAction = playerInput.actions["Move"];
         dodgeAction = playerInput.actions["Dodge"];
         attackAction = playerInput.actions["Attack"];
         interactAction = playerInput.actions["Interact"];
         mouseAction = playerInput.actions["MousePos"];
+
+        state = State.Normal;
     }
 
     private void Start() {
@@ -45,12 +55,35 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void Update() {
-        movement = moveAction.ReadValue<Vector2>();
+        switch(state) {
+            case State.Normal:
+                moveDirection = moveAction.ReadValue<Vector2>();
+                if (moveDirection.x != 0 || moveDirection.y != 0) {
+                    //not idle
+                    lastMoveDirection = moveDirection;
+                }
+                break;
+            case State.Dodge:
+                float dodgeSpeedDropMultiplier = 5f;
+                dodgeSpeed -= dodgeSpeed * dodgeSpeedDropMultiplier * Time.fixedDeltaTime;
+                float dodgeSpeedMinimum = 10f;
+                if (dodgeSpeed < dodgeSpeedMinimum) {
+                    state = State.Normal;
+                }
+                break;
+        }
         mousePosition = cam.ScreenToWorldPoint(mouseAction.ReadValue<Vector2>());
     }
 
     private void FixedUpdate() {
-        Move();
+        switch(state) {
+            case State.Normal:
+                Move();
+                break;
+            case State.Dodge:
+                rb.velocity = dodgeDirection * dodgeSpeed;
+                break;
+        }
         Vector3 mouseDirection = mousePosition - rotationPoint.position;
         float angle = Mathf.Atan2(mouseDirection.y, mouseDirection.x) * Mathf.Rad2Deg - 90f;
         rotationPoint.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
@@ -58,19 +91,18 @@ public class PlayerController : MonoBehaviour {
 
     // player movement function
     private void Move() {
-        rb.MovePosition(rb.position + movement * movementSpeed * Time.fixedDeltaTime);
-
-        string currDir = getDirection();
-        if (currDir != direction) {
-            direction = currDir;
-            rotatePlayer();
-        }
+        rb.velocity = moveDirection * movementSpeed * Time.fixedDeltaTime;
+        animations.playMove(moveDirection);
     }
 
     // player dodge function
     private void Dodge(InputAction.CallbackContext context) {
-        rb.AddForce(movement * dodgeForce);
-        Debug.Log("dodge");
+        if (state == State.Normal) {
+            dodgeDirection = lastMoveDirection;
+            dodgeSpeed = 120f;
+            state = State.Dodge;
+            Debug.Log("dodge");
+        }
     }
 
     // player basic attack function
@@ -91,68 +123,5 @@ public class PlayerController : MonoBehaviour {
     // player interaction function
     private void Interact(InputAction.CallbackContext context) {
         Debug.Log("interact");
-    }
-
-    private void rotatePlayer() {
-        switch (direction) {
-            case "n":
-                rb.rotation = 0f;
-                break;
-            case "ne":
-                rb.rotation = -45f;
-                break;
-            case "nw":
-                rb.rotation = 45f;
-                break;
-            case "s":
-                rb.rotation = 180f;
-                break;
-            case "se":
-                rb.rotation = -135f;
-                break;
-            case "sw":
-                rb.rotation = 135f;
-                break;
-            case "e":
-                rb.rotation = -90f;
-                break;
-            case "w":
-                rb.rotation = 90f;
-                break;
-            default:
-                rb.rotation = 180f;
-                break;
-        }
-    }
-
-    // get direction the player is facing
-    private string getDirection() {
-        if (movement.y > 0) {
-            if (movement.x > 0) {
-                return "ne";
-            }
-            else if (movement.x < 0) {
-                return "nw";
-            }
-            return "n";
-        }
-        else if (movement.y < 0) {
-            if (movement.x > 0) {
-                return "se";
-            }
-            else if (movement.x < 0) {
-                return "sw";
-            }
-            return "s";
-        }
-        else {
-            if (movement.x > 0) {
-                return "e";
-            }
-            else if (movement.x < 0) {
-                return "w";
-            }
-            return "";
-        }
     }
 }
