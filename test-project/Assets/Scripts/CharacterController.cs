@@ -104,7 +104,7 @@ public class CharacterController : MonoBehaviour {
     private void Attack(InputAction.CallbackContext context) {
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
         foreach(Collider2D enemy in hitEnemies) {
-            enemy.GetComponent<TestEnemy>().damage(attackDamage);
+            enemy.GetComponent<TestEnemyController>().damage(attackDamage);
         }
     }
 

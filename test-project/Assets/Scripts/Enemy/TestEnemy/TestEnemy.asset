@@ -12,3 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66d89aa320f605d45bda1af6bafe6f98, type: 3}
   m_Name: TestEnemy
   m_EditorClassIdentifier: 
+  <maxHealth>k__BackingField: 100
+  <movementSpeed>k__BackingField: 4
+  <attackDamage>k__BackingField: 10
+  <detectionRange>k__BackingField: 10
