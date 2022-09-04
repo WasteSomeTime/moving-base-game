@@ -40,7 +40,10 @@ public class TestEnemyController : MonoBehaviour {
     }
 
     private void undetect() {
-        if (!inDetection) target = null;
+        if (!inDetection) {
+            target = null;
+            move(transform.position);
+        }
     }
 
     private void move(Vector3 movePosition) {
